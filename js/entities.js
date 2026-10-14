@@ -138,16 +138,16 @@ class Item extends Entity {
 const MONSTER_TEMPLATES = [
   // Tier 1 (Floor 1-2)
   { char: 'b', color: '#94a3b8', name: 'Dơi Khổng Lồ', hp: 10, atk: 4, def: 0, xp: 6, minFloor: 1, maxFloor: 2 },
-  { char: 'g', color: '#4ade80', name: 'Yêu Tinh Hang Động', hp: 16, atk: 6, def: 1, xp: 10, minFloor: 1, maxFloor: 3 },
-  { char: 's', color: '#e2e8f0', name: 'Lính Xương Khô', hp: 22, atk: 8, def: 2, xp: 16, minFloor: 1, maxFloor: 4 },
+  { char: 'g', color: '#4ade80', name: 'Yêu Tinh Hang Động', hp: 16, atk: 6, def: 2, xp: 10, minFloor: 1, maxFloor: 3 },
+  { char: 's', color: '#e2e8f0', name: 'Lính Xương Khô', hp: 22, atk: 8, def: 3, xp: 16, minFloor: 1, maxFloor: 4 },
   
   // Tier 2 (Floor 2-4)
-  { char: 'o', color: '#f97316', name: 'Chiến Binh Orc', hp: 32, atk: 11, def: 3, xp: 25, minFloor: 2, maxFloor: 5 },
-  { char: 'm', color: '#c084fc', name: 'Pháp Sư Bóng Đêm', hp: 24, atk: 12, def: 1, xp: 30, minFloor: 2, maxFloor: 5, isRanged: true },
-  { char: 'M', color: '#ef4444', name: 'Quái Vật Nhân Ngưu', hp: 48, atk: 15, def: 4, xp: 45, minFloor: 3, maxFloor: 5 },
+  { char: 'o', color: '#f97316', name: 'Chiến Binh Orc', hp: 32, atk: 11, def: 5, xp: 25, minFloor: 2, maxFloor: 5 },
+  { char: 'm', color: '#c084fc', name: 'Pháp Sư Bóng Đêm', hp: 24, atk: 12, def: 3, xp: 30, minFloor: 2, maxFloor: 5, isRanged: true },
+  { char: 'M', color: '#ef4444', name: 'Quái Vật Nhân Ngưu', hp: 60, atk: 20, def: 6, xp: 45, minFloor: 3, maxFloor: 5 },
 
   // Boss (Floor 5)
-  { char: 'D', color: '#ff2222', name: 'Chúa Tể Malgok', hp: 120, atk: 18, def: 6, xp: 150, minFloor: 5, maxFloor: 5 }
+  { char: 'D', color: '#ff2222', name: 'Chúa Tể Malgok', hp: 250, atk: 32, def: 15, xp: 150, minFloor: 5, maxFloor: 5 }
 ];
 
 // Item Templates
