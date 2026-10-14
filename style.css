@@ -605,6 +605,24 @@ select#theme-select {
 .sym-door-open { color: #f59e0b; }
 .sym-wall { color: #4b5563; }
 
+/* Bestiary glyph colors */
+.sym-bat { color: #94a3b8; font-weight: bold; }
+.sym-goblin { color: #4ade80; font-weight: bold; }
+.sym-skel { color: #e2e8f0; font-weight: bold; }
+.sym-orc { color: #f97316; font-weight: bold; }
+.sym-mage { color: #c084fc; font-weight: bold; }
+.sym-minotaur { color: #ef4444; font-weight: bold; }
+.sym-boss { color: #ff2222; font-weight: bold; text-shadow: 0 0 6px #ff0000; }
+
+/* Items glyph colors */
+.sym-potion-red { color: #ff4444; font-weight: bold; }
+.sym-potion-blue { color: #38bdf8; font-weight: bold; }
+.sym-scroll { color: #f59e0b; font-weight: bold; }
+.sym-weapon { color: #38bdf8; font-weight: bold; }
+.sym-armor { color: #94a3b8; font-weight: bold; }
+.sym-chest { color: #ec4899; font-weight: bold; }
+.sym-gold { color: #facc15; font-weight: bold; }
+
 .footer-hint {
   color: var(--text-dim);
 }

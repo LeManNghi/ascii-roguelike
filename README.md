@@ -43,6 +43,20 @@ Một tựa game **ASCII Roguelike Dungeon Crawler** cổ điển kết hợp hi
 
 ---
 
+## 👾 Bách Khoa Quái Vật (Bestiary)
+
+| Ký Hiệu | Tên Quái Vật | Tầng Xuất Hiện | Mô Tả & Chỉ Số Cơ Bản |
+| :---: | :--- | :---: | :--- |
+| **`b`** | **Dơi Khổng Lồ (Giant Bat)** | Tầng 1 - 2 | Di chuyển nhanh, máu thấp (HP 10, ATK 4, DEF 0). |
+| **`g`** | **Yêu Tinh Hang Động (Goblin)** | Tầng 1 - 3 | Quái vật tinh quái (HP 16, ATK 6, DEF 1). |
+| **`s`** | **Lính Xương Khô (Skeleton)** | Tầng 1 - 4 | Chiến binh bất tử, phòng thủ tốt (HP 22, ATK 8, DEF 2). |
+| **`o`** | **Chiến Binh Orc** | Tầng 2 - 5 | Lực đánh mạnh, máu dồi dào (HP 32, ATK 11, DEF 3). |
+| **`m`** | **Pháp Sư Bóng Đêm (Dark Mage)** | Tầng 2 - 5 | Tấn công ma thuật tầm xa nguy hiểm (HP 24, ATK 12, DEF 1). |
+| **`M`** | **Quái Vật Nhân Ngưu (Minotaur)** | Tầng 3 - 5 | Quái tinh anh cực trâu bò, húc siêu đau (HP 48, ATK 15, DEF 4). |
+| **`D`** | **Chúa Tể Malgok (Final Boss)** | Tầng 5 | Trùm cuối canh giữ Amulet of Code (HP 120, ATK 18, DEF 6). |
+
+---
+
 ## ⚔️ Tính Năng Nổi Bật
 
 1. **Hiệu ứng CRT Retro cao cấp**:
