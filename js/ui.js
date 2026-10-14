@@ -22,6 +22,40 @@ class UIManager {
     this.floatingLayer = document.getElementById('floating-numbers-layer');
 
     this.setupTheme();
+    this.handleResize();
+    window.addEventListener('resize', () => {
+      this.handleResize();
+      if (window.game) window.game.render();
+    });
+  }
+
+  handleResize() {
+    const isMobile = window.innerWidth <= 820;
+    const wrapper = this.canvas.parentElement;
+
+    if (isMobile && wrapper) {
+      const rect = wrapper.getBoundingClientRect();
+      const cssWidth = Math.max(280, Math.floor(rect.width || window.innerWidth));
+      const cssHeight = Math.max(220, Math.floor(rect.height || (window.innerHeight * 0.4)));
+
+      this.canvas.width = cssWidth;
+      this.canvas.height = cssHeight;
+
+      // Phóng to chữ trên mobile: giới hạn khoảng 18-22 ô hiển thị theo chiều ngang để chữ thật to và rõ
+      const targetCols = Math.min(22, Math.max(16, Math.floor(cssWidth / 20)));
+      this.charWidth = Math.max(16, Math.floor(cssWidth / targetCols));
+      this.charHeight = Math.floor(this.charWidth * 1.55);
+      this.fontSize = Math.floor(this.charHeight * 1.1);
+    } else {
+      this.canvas.width = 800;
+      this.canvas.height = 540;
+      this.fontSize = 20;
+      this.charWidth = 12;
+      this.charHeight = 20;
+    }
+
+    this.ctx.font = `${this.fontSize}px 'VT323', monospace`;
+    this.ctx.textBaseline = 'top';
   }
 
   setupTheme() {
@@ -56,8 +90,17 @@ class UIManager {
     const viewCols = Math.floor(this.canvas.width / this.charWidth);
     const viewRows = Math.floor(this.canvas.height / this.charHeight);
 
-    this.cameraX = Math.max(0, Math.min(mapWidth - viewCols, playerX - Math.floor(viewCols / 2)));
-    this.cameraY = Math.max(0, Math.min(mapHeight - viewRows, playerY - Math.floor(viewRows / 2)));
+    if (viewCols >= mapWidth) {
+      this.cameraX = -Math.floor((viewCols - mapWidth) / 2);
+    } else {
+      this.cameraX = Math.max(0, Math.min(mapWidth - viewCols, playerX - Math.floor(viewCols / 2)));
+    }
+
+    if (viewRows >= mapHeight) {
+      this.cameraY = -Math.floor((viewRows - mapHeight) / 2);
+    } else {
+      this.cameraY = Math.max(0, Math.min(mapHeight - viewRows, playerY - Math.floor(viewRows / 2)));
+    }
   }
 
   render(gameMap, visibleTiles, player, monsters, items) {
