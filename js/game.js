@@ -514,55 +514,66 @@ class GameEngine {
         return;
       }
 
+      // 1. Phím số trên hàng phím chính (Digit1 - Digit9): Sử dụng vật phẩm túi đồ
+      if (e.code && e.code.startsWith('Digit')) {
+        const slot = parseInt(e.code.replace('Digit', '')) - 1;
+        if (slot >= 0 && slot <= 8) {
+          e.preventDefault();
+          this.useInventoryItem(slot);
+          return;
+        }
+      }
+
+      // 2. Cụm phím số Numpad bên phải (Numpad1 - Numpad9): Di chuyển 8 hướng & bỏ lượt
+      if (e.code && e.code.startsWith('Numpad')) {
+        e.preventDefault();
+        switch (e.code) {
+          case 'Numpad8': this.handleMove(0, -1); return;
+          case 'Numpad2': this.handleMove(0, 1); return;
+          case 'Numpad4': this.handleMove(-1, 0); return;
+          case 'Numpad6': this.handleMove(1, 0); return;
+          case 'Numpad7': this.handleMove(-1, -1); return;
+          case 'Numpad9': this.handleMove(1, -1); return;
+          case 'Numpad1': this.handleMove(-1, 1); return;
+          case 'Numpad3': this.handleMove(1, 1); return;
+          case 'Numpad5':
+            this.ui.logMessage('Bạn dừng chân nghỉ ngơi dưỡng sức.', 'system');
+            this.endPlayerTurn();
+            return;
+        }
+      }
+
+      // 3. Phím điều khiển thông thường (WASD, Mũi tên, Phép thuật, Hệ thống)
       switch (e.key) {
         // Arrow & WASD Movement
         case 'ArrowUp':
         case 'w':
         case 'W':
-        case '8':
           e.preventDefault();
           this.handleMove(0, -1);
           break;
         case 'ArrowDown':
         case 's':
         case 'S':
-        case '2':
           e.preventDefault();
           this.handleMove(0, 1);
           break;
         case 'ArrowLeft':
         case 'a':
         case 'A':
-        case '4':
           e.preventDefault();
           this.handleMove(-1, 0);
           break;
         case 'ArrowRight':
         case 'd':
         case 'D':
-        case '6':
           e.preventDefault();
           this.handleMove(1, 0);
-          break;
-
-        // Diagonal Numpad support
-        case '7':
-          this.handleMove(-1, -1);
-          break;
-        case '9':
-          this.handleMove(1, -1);
-          break;
-        case '1':
-          this.handleMove(-1, 1);
-          break;
-        case '3':
-          this.handleMove(1, 1);
           break;
 
         // Wait / Skip turn
         case ' ':
         case '.':
-        case '5':
           e.preventDefault();
           this.ui.logMessage('Bạn dừng chân nghỉ ngơi dưỡng sức.', 'system');
           this.endPlayerTurn();
@@ -586,20 +597,6 @@ class GameEngine {
         case 'b':
         case 'B':
           this.castBlinkSpell();
-          break;
-
-        // Inventory numeric keys (1-9)
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          const slot = parseInt(e.key) - 1;
-          this.useInventoryItem(slot);
           break;
 
         // Help Modal Toggle

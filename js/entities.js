@@ -23,7 +23,7 @@ class Player extends Entity {
     this.baseAtk = 5;
     this.baseDef = 1;
     this.xp = 0;
-    this.maxXp = 20;
+    this.maxXp = 40;
     this.gold = 0;
     this.turns = 0;
     this.kills = 0;
