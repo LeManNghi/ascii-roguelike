@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ASCII DUNGEON: Shadows of Code</title>
+  <meta name="description" content="Trò chơi nhập vai hầm ngục Roguelike phong cách ASCII cổ điển với hiệu ứng CRT Retro, âm thanh 8-bit và bản đồ sinh ngẫu nhiên.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-green crt-active">
+  <!-- CRT Screen Bezel & Overlay -->
+  <div class="crt-overlay"></div>
+  <div class="scanlines"></div>
+  <div class="vignette"></div>
+
+  <div id="game-container">
+    <!-- Top Terminal Header -->
+    <header id="terminal-header">
+      <div class="header-left">
+        <span class="system-logo">📟 HẦM NGỤC ASCII v1.0</span>
+        <span class="depth-badge">TẦNG: <span id="stat-floor" class="highlight">1</span> / 5</span>
+      </div>
+      <div class="header-center" id="status-ticker">
+        * CHÀO MỪNG HIỆP SĨ ĐẾN VỚI HẦM NGỤC TỐI *
+      </div>
+      <div class="header-right">
+        <div class="crt-controls">
+          <button id="btn-help-toggle" class="btn-micro btn-help-highlight" title="Xem hướng dẫn chơi game chi tiết">📖 HƯỚNG DẪN [?]</button>
+          <label for="theme-select">MÀU CRT:</label>
+          <select id="theme-select" title="Thay đổi màu phát quang CRT">
+            <option value="theme-green">Xanh Ma Trận</option>
+            <option value="theme-amber">Hổ Phách Retro</option>
+            <option value="theme-cyan">Xanh Neon Cyber</option>
+            <option value="theme-blood">Huyết Nguyệt Đỏ</option>
+            <option value="theme-mono">Đơn Sắc Trắng</option>
+          </select>
+          <button id="btn-crt-toggle" class="btn-micro" title="Bật/Tắt hiệu ứng quét mành CRT">CRT: BẬT</button>
+          <button id="btn-audio-toggle" class="btn-micro" title="Bật/Tắt hiệu ứng âm thanh 8-bit">LOA: BẬT</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Game Area -->
+    <main id="game-layout">
+      <!-- Left Column: Player Stats & Equipment -->
+      <aside id="sidebar-left">
+        <div class="panel-box stats-panel">
+          <div class="panel-title">══ TRẠNG THÁI HIỆP SĨ ══</div>
+          <div class="stat-row">
+            <span class="stat-name">TÊN:</span>
+            <span class="stat-val highlight" id="stat-name">HIỆP SĨ (@)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">LỚP:</span>
+            <span class="stat-val" id="stat-class">Nhà Thám Hiểm</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">CẤP ĐỘ:</span>
+            <span class="stat-val highlight" id="stat-level">1</span>
+          </div>
+
+          <!-- HP Bar -->
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>MÁU (HP):</span>
+              <span id="stat-hp-text">35/35</span>
+            </div>
+            <div class="meter-bar-container">
+              <div class="meter-fill hp-fill" id="stat-hp-bar" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- MP Bar -->
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>NĂNG LƯỢNG (MP):</span>
+              <span id="stat-mp-text">15/15</span>
+            </div>
+            <div class="meter-bar-container">
+              <div class="meter-fill mp-fill" id="stat-mp-bar" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- XP Bar -->
+          <div class="meter-group">
+            <div class="meter-label">
+              <span>KINH NGHIỆM (XP):</span>
+              <span id="stat-xp-text">0/20</span>
+            </div>
+            <div class="meter-bar-container">
+              <div class="meter-fill xp-fill" id="stat-xp-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="stat-divider"></div>
+
+          <div class="stat-row">
+            <span class="stat-name">SÁT THƯƠNG:</span>
+            <span class="stat-val highlight" id="stat-atk">7 (5+2)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">PHÒNG THỦ:</span>
+            <span class="stat-val highlight" id="stat-def">2 (1+1)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">TIỀN VÀNG:</span>
+            <span class="stat-val gold-text" id="stat-gold">0 🪙</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">LƯỢT ĐI:</span>
+            <span class="stat-val" id="stat-turns">0</span>
+          </div>
+        </div>
+
+        <!-- Equipment Panel -->
+        <div class="panel-box equip-panel">
+          <div class="panel-title">══ TRANG BỊ HIỆN TẠI ══</div>
+          <div class="equip-row">
+            <span class="equip-slot">[VŨ KHÍ]</span>
+            <span class="equip-item" id="equip-weapon">Dao Găm Cũ Kỹ (+2)</span>
+          </div>
+          <div class="equip-row">
+            <span class="equip-slot">[GIÁP TRỤ]</span>
+            <span class="equip-item" id="equip-armor">Áo Vải Bố (+1)</span>
+          </div>
+          <div class="equip-row">
+            <span class="equip-slot">[NHẪN THẦN]</span>
+            <span class="equip-item" id="equip-ring">Trống</span>
+          </div>
+        </div>
+
+        <!-- Quick Spell Hotkeys -->
+        <div class="panel-box spells-panel">
+          <div class="panel-title">══ PHÉP THUẬT ══</div>
+          <div class="spell-btn" id="spell-fireball" title="Phóng Cầu Lửa (5 MP) - Phím tắt [F]">
+            <span class="spell-key">[F]</span> Cầu Lửa <span class="spell-cost">(5 MP)</span>
+          </div>
+          <div class="spell-btn" id="spell-heal" title="Trị Thương Phục Hồi Máu (6 MP) - Phím tắt [H]">
+            <span class="spell-key">[H]</span> Trị Thương <span class="spell-cost">(6 MP)</span>
+          </div>
+          <div class="spell-btn" id="spell-blink" title="Dịch chuyển tức thời thoát hiểm (8 MP) - Phím tắt [B]">
+            <span class="spell-key">[B]</span> Hư Không Bộ <span class="spell-cost">(8 MP)</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Column: The ASCII Viewport -->
+      <section id="viewport-container">
+        <div id="viewport-wrapper">
+          <canvas id="dungeon-canvas" width="800" height="540"></canvas>
+          <div id="floating-numbers-layer"></div>
+        </div>
+
+        <!-- Touch / Onscreen Virtual Controls for Mobile / Click -->
+        <div id="touch-controls">
+          <div class="dpad">
+            <button class="dpad-btn" id="btn-up" data-dir="up">▲</button>
+            <div class="dpad-mid">
+              <button class="dpad-btn" id="btn-left" data-dir="left">◀</button>
+              <button class="dpad-btn" id="btn-wait" data-dir="wait">●</button>
+              <button class="dpad-btn" id="btn-right" data-dir="right">▶</button>
+            </div>
+            <button class="dpad-btn" id="btn-down" data-dir="down">▼</button>
+          </div>
+          <div class="action-buttons">
+            <button class="act-btn" id="btn-stairs">Xuống [>]</button>
+            <button class="act-btn" id="btn-cast">Phép [F]</button>
+            <button class="act-btn" id="btn-potion">Hồi Máu [1]</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Inventory & Combat Log -->
+      <aside id="sidebar-right">
+        <!-- Inventory Panel -->
+        <div class="panel-box inv-panel">
+          <div class="panel-title">══ TÚI ĐỒ (0/10) ══</div>
+          <div id="inventory-list" class="inventory-items">
+            <!-- Dynamically populated -->
+          </div>
+          <div class="inv-hint">Bấm phím [1-9] hoặc nhấp chuột để dùng đồ</div>
+        </div>
+
+        <!-- Combat & Dungeon Log -->
+        <div class="panel-box log-panel">
+          <div class="panel-title">══ NHẬT KÝ CHIẾN TÍCH ══</div>
+          <div id="combat-log">
+            <!-- Messages appear here -->
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Bottom Bar / Status Legend -->
+    <footer id="terminal-footer">
+      <div class="legend-row">
+        <span><strong class="sym-hero">@</strong> Hiệp Sĩ</span>
+        <span><strong class="sym-monster">b/g/s/o/m/D</strong> Quái Vật</span>
+        <span><strong class="sym-item">!/?/$/=</strong> Vật Phẩm/Rương</span>
+        <span><strong class="sym-stairs">&gt;</strong> Cầu Thang</span>
+        <span><strong class="sym-door">+</strong> Cửa Đóng</span>
+        <span><strong class="sym-door-open">_</strong> Cửa Mở</span>
+        <span><strong class="sym-wall">#</strong> Bức Tường</span>
+      </div>
+      <div class="footer-hint">
+        DI CHUYỂN: <strong>WASD</strong> hoặc <strong>Phím Mũi Tên</strong> | CHỜ LƯỢT: <strong>Phím Cách/Chấm (.)</strong> | DÙNG PHÉP: <strong>F / H / B</strong> | XUỐNG TẦNG: <strong>&gt;</strong>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Help & Guide Modal (Cẩm Nang Hướng Dẫn) -->
+  <div id="modal-help" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📜 CẨM NANG HƯỚNG DẪN SINH TỒN HẦM NGỤC ASCII</h2>
+        <button id="btn-close-help" class="btn-close" title="Đóng bảng">✖</button>
+      </div>
+      <div class="modal-body">
+        <div class="help-section">
+          <h3>🎮 CÁCH CHƠI VÀ MỤC TIÊU</h3>
+          <p>Bạn là một hiệp sĩ dũng cảm dấn thân vào hầm ngục nguy hiểm gồm <strong>5 tầng sâu thẳm</strong>. Mục tiêu cuối cùng là vượt qua các bẫy rập và quái vật, đánh bại Chúa tể hầm ngục <strong>[D]</strong> tại tầng 5 và đoạt lại <strong>Cổ Vật Thần Bí (Amulet of Code)</strong>!</p>
+          <ul>
+            <li><strong>Di chuyển & Tấn công:</strong> Sử dụng <code>W, A, S, D</code> hoặc các phím mũi tên <code>▲ ◀ ▼ ▶</code>. Khi bạn đi thẳng vào ô có quái vật, bạn sẽ tung đòn tấn công cận chiến.</li>
+            <li><strong>Cửa đóng & Cửa mở:</strong>
+              <br>• <code>[+] Cửa đóng:</code> Chặn tầm nhìn (FOV) và ánh sáng bên trong phòng. Đi thẳng vào cánh cửa để mở ra.
+              <br>• <code>[_] Cửa mở:</code> Cánh cửa đã được mở, cho phép nhìn xuyên qua và di chuyển tự do.
+            </li>
+            <li><strong>Nghỉ ngơi / Chờ lượt:</strong> Nhấn <code>Phím Cách (Space)</code> hoặc dấu chấm <code>.</code> để đứng chờ 1 lượt (cho phép hồi phục dần MP tự nhiên).</li>
+            <li><strong>Sử dụng vật phẩm:</strong> Nhấn các phím số <code>1</code> đến <code>9</code> để uống bình máu/mana, đọc cuộn giấy phép hoặc trang bị vũ khí/áo giáp.</li>
+            <li><strong>Hệ thống Phép thuật:</strong>
+              <br>• <code>[F] Cầu Lửa:</code> Bắn hỏa cầu hủy diệt tầm xa vào quái vật gần nhất trong tầm nhìn (tốn 5 MP).
+              <br>• <code>[H] Trị Thương:</code> Cầu nguyện hào quang thần thánh hồi phục 18 Máu (tốn 6 MP).
+              <br>• <code>[B] Hư Không Bộ:</code> Xé rách không gian dịch chuyển tức thời đến buồng an toàn khác (tốn 8 MP).
+            </li>
+            <li><strong>Cầu thang xuống tầng:</strong> Khi tìm thấy ký hiệu <code>&gt;</code>, hãy bước lên ô đó và bấm phím <code>&gt;</code> (hoặc <code>Enter</code>) để tiến xuống tầng hầm sâu hơn.</li>
+          </ul>
+        </div>
+        <div class="help-section">
+          <h3>👾 BÁCH KHOA QUÁI VẬT (BESTIARY)</h3>
+          <div class="bestiary-grid">
+            <div><span class="sym-bat">b</span> <strong>Dơi Khổng Lồ:</strong> Di chuyển nhanh nhẹn, máu ít.</div>
+            <div><span class="sym-goblin">g</span> <strong>Yêu Tinh Hang Động:</strong> Quái vật tinh ranh, phòng thủ yếu.</div>
+            <div><span class="sym-skel">s</span> <strong>Lính Xương Khô:</strong> Chiến binh bất tử, giáp cứng cáp.</div>
+            <div><span class="sym-orc">o</span> <strong>Chiến Binh Orc:</strong> Đòn đánh cực mạnh, lượng máu dồi dào.</div>
+            <div><span class="sym-mage">m</span> <strong>Pháp Sư Bóng Đêm:</strong> Bắn ma thuật hắc ám từ xa.</div>
+            <div><span class="sym-boss">D</span> <strong>Chúa Tể Malgok:</strong> Trùm Tầng 5! Hơi thở thiêu rụi và máu khổng lồ.</div>
+          </div>
+        </div>
+        <div class="help-section">
+          <h3>💎 VẬT PHẨM & TRANG BỊ</h3>
+          <div class="items-grid">
+            <div><span class="sym-potion-red">!</span> <strong>Bình Máu Đỏ:</strong> Hồi phục ngay 25 Máu (HP).</div>
+            <div><span class="sym-potion-blue">!</span> <strong>Bình Năng Lượng:</strong> Hồi phục ngay 15 Mana (MP).</div>
+            <div><span class="sym-scroll">?</span> <strong>Cuộn Giấy Phép:</strong> Chứa phép nổ Cầu Lửa diện rộng hoặc Dịch Chuyển.</div>
+            <div><span class="sym-weapon">/</span> <strong>Vũ Khí (Kiếm):</strong> Tăng vĩnh viễn sức tấn công.</div>
+            <div><span class="sym-armor">[</span> <strong>Áo Giáp:</strong> Giảm sát thương nhận vào từ kẻ thù.</div>
+            <div><span class="sym-chest">=</span> <strong>Nhẫn Quyền Năng:</strong> Tăng cả Tấn Công lẫn Phòng Thủ.</div>
+            <div><span class="sym-gold">$</span> <strong>Túi Vàng:</strong> Tăng điểm tích lũy của bạn khi hoàn thành ván đấu.</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-help-ok" class="btn-modal-action">ĐÃ HIỂU - QUAY LẠI CHIẾN ĐẤU [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over / Victory Modal -->
+  <div id="modal-gameover" class="modal hidden">
+    <div class="modal-content gameover-content">
+      <div class="gameover-banner" id="gameover-title">☠ BẠN ĐÃ TỬ TRẬN ☠</div>
+      <p id="gameover-desc">Linh hồn bạn mãi mãi chìm trong bóng tối của hầm ngục ASCII...</p>
+      <div class="gameover-stats">
+        <div>Tầng Sâu Nhất: <span id="gov-floor" class="highlight">1</span></div>
+        <div>Quái Vật Đã Hạ: <span id="gov-kills" class="highlight">0</span></div>
+        <div>Tổng Vàng Thu Thập: <span id="gov-gold" class="gold-text">0</span> 🪙</div>
+        <div>Số Lượt Sống Sót: <span id="gov-turns" class="highlight">0</span></div>
+        <div>Điểm Số Chung Cuộc: <span id="gov-score" class="highlight score-big">0</span></div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-restart" class="btn-modal-action pulse-btn">CHƠI LẠI VÁN MỚI [SPACE]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/fov.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/entities.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
