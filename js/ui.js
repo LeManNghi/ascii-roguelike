@@ -233,53 +233,106 @@ class UIManager {
     if (eqWeapon) eqWeapon.innerText = player.equipped.weapon ? `${player.equipped.weapon.name} (+${player.equipped.weapon.bonusAtk} Công)` : 'Trống';
     if (eqArmor) eqArmor.innerText = player.equipped.armor ? `${player.equipped.armor.name} (+${player.equipped.armor.bonusDef} Thủ)` : 'Trống';
     if (eqRing) eqRing.innerText = player.equipped.ring ? `${player.equipped.ring.name}` : 'Trống';
+
+    // Synchronize Mobile Mini-HUD
+    const mHpText = document.getElementById('m-stat-hp-text');
+    const mHpBar = document.getElementById('m-stat-hp-bar');
+    if (mHpText && mHpBar) {
+      mHpText.innerText = `${player.hp}/${player.maxHp}`;
+      mHpBar.style.width = `${Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100))}%`;
+    }
+
+    const mMpText = document.getElementById('m-stat-mp-text');
+    const mMpBar = document.getElementById('m-stat-mp-bar');
+    if (mMpText && mMpBar) {
+      mMpText.innerText = `${player.mp}/${player.maxMp}`;
+      mMpBar.style.width = `${Math.max(0, Math.min(100, (player.mp / player.maxMp) * 100))}%`;
+    }
+
+    const mLevel = document.getElementById('m-stat-level');
+    if (mLevel) mLevel.innerText = player.level;
+
+    const mGold = document.getElementById('m-stat-gold');
+    if (mGold) mGold.innerText = player.gold;
+
+    const mFloor = document.getElementById('m-stat-floor');
+    const statFloor = document.getElementById('stat-floor');
+    if (mFloor && statFloor) mFloor.innerText = statFloor.innerText;
+
+    const mInvCount = document.getElementById('m-inv-count');
+    if (mInvCount) mInvCount.innerText = player.inventory.length;
   }
 
   renderInventory(player, onUseCallback) {
     const list = document.getElementById('inventory-list');
-    if (!list) return;
+    const mList = document.getElementById('m-inventory-list');
+    const mInvCount = document.getElementById('m-inv-count');
+    if (mInvCount) mInvCount.innerText = player.inventory.length;
 
-    list.innerHTML = '';
     const panelTitle = document.querySelector('.inv-panel .panel-title');
     if (panelTitle) {
       panelTitle.innerText = `══ TÚI ĐỒ (${player.inventory.length}/10) ══`;
     }
 
-    if (player.inventory.length === 0) {
-      list.innerHTML = `<div style="color:var(--text-dim); text-align:center; padding:10px;">[Túi Đồ Trống]</div>`;
-      return;
-    }
-
-    player.inventory.forEach((item, idx) => {
+    const buildItemNode = (item, idx, isMobile = false) => {
       const slotDiv = document.createElement('div');
-      slotDiv.className = 'inv-item';
+      slotDiv.className = isMobile ? 'inv-item mobile-touch-item' : 'inv-item';
       slotDiv.innerHTML = `
         <span class="inv-slot-num">[${idx + 1}]</span>
         <span class="inv-name" style="color: ${item.color}">${item.name}</span>
-        <button class="inv-btn-use">DÙNG</button>
+        <button class="inv-btn-use">${isMobile ? 'SỬ DỤNG' : 'DÙNG'}</button>
       `;
       slotDiv.addEventListener('click', () => {
         onUseCallback(idx);
+        if (isMobile) {
+          const mInvModal = document.getElementById('modal-mobile-inventory');
+          if (mInvModal) mInvModal.classList.add('hidden');
+        }
       });
-      list.appendChild(slotDiv);
-    });
+      return slotDiv;
+    };
+
+    if (list) {
+      list.innerHTML = '';
+      if (player.inventory.length === 0) {
+        list.innerHTML = `<div style="color:var(--text-dim); text-align:center; padding:10px;">[Túi Đồ Trống]</div>`;
+      } else {
+        player.inventory.forEach((item, idx) => {
+          list.appendChild(buildItemNode(item, idx, false));
+        });
+      }
+    }
+
+    if (mList) {
+      mList.innerHTML = '';
+      if (player.inventory.length === 0) {
+        mList.innerHTML = `<div style="color:var(--text-dim); text-align:center; padding:20px; font-size:18px;">[Túi Đồ Hiện Đang Trống]</div>`;
+      } else {
+        player.inventory.forEach((item, idx) => {
+          mList.appendChild(buildItemNode(item, idx, true));
+        });
+      }
+    }
   }
 
   logMessage(msg, category = 'system') {
     const logContainer = document.getElementById('combat-log');
-    if (!logContainer) return;
+    const mLogContainer = document.getElementById('m-combat-log');
 
-    const entry = document.createElement('div');
-    entry.className = `log-entry log-${category}`;
-    entry.innerText = msg;
+    const appendEntry = (container) => {
+      if (!container) return;
+      const entry = document.createElement('div');
+      entry.className = `log-entry log-${category}`;
+      entry.innerText = msg;
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+      while (container.children.length > 50) {
+        container.removeChild(container.firstChild);
+      }
+    };
 
-    logContainer.appendChild(entry);
-    logContainer.scrollTop = logContainer.scrollHeight;
-
-    // Keep log reasonable size
-    while (logContainer.children.length > 50) {
-      logContainer.removeChild(logContainer.firstChild);
-    }
+    appendEntry(logContainer);
+    appendEntry(mLogContainer);
   }
 
   showGameOverModal(isVictory, stats) {

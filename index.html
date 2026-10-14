@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>ASCII DUNGEON: Shadows of Code</title>
   <meta name="description" content="Trò chơi nhập vai hầm ngục Roguelike phong cách ASCII cổ điển với hiệu ứng CRT Retro, âm thanh 8-bit và bản đồ sinh ngẫu nhiên.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,7 +20,7 @@
     <!-- Top Terminal Header -->
     <header id="terminal-header">
       <div class="header-left">
-        <span class="system-logo">📟 HẦM NGỤC ASCII v1.0</span>
+        <span class="system-logo">📟 HẦM NGỤC ASCII</span>
         <span class="depth-badge">TẦNG: <span id="stat-floor" class="highlight">1</span> / 5</span>
       </div>
       <div class="header-center" id="status-ticker">
@@ -29,7 +29,7 @@
       <div class="header-right">
         <div class="crt-controls">
           <button id="btn-help-toggle" class="btn-micro btn-help-highlight" title="Xem hướng dẫn chơi game chi tiết">📖 HƯỚNG DẪN [?]</button>
-          <label for="theme-select">MÀU CRT:</label>
+          <label for="theme-select" class="hide-mobile">MÀU CRT:</label>
           <select id="theme-select" title="Thay đổi màu phát quang CRT">
             <option value="theme-green">Xanh Ma Trận</option>
             <option value="theme-amber">Hổ Phách Retro</option>
@@ -37,7 +37,7 @@
             <option value="theme-blood">Huyết Nguyệt Đỏ</option>
             <option value="theme-mono">Đơn Sắc Trắng</option>
           </select>
-          <button id="btn-crt-toggle" class="btn-micro" title="Bật/Tắt hiệu ứng quét mành CRT">CRT: BẬT</button>
+          <button id="btn-crt-toggle" class="btn-micro hide-mobile" title="Bật/Tắt hiệu ứng quét mành CRT">CRT: BẬT</button>
           <button id="btn-audio-toggle" class="btn-micro" title="Bật/Tắt hiệu ứng âm thanh 8-bit">LOA: BẬT</button>
         </div>
       </div>
@@ -149,6 +149,31 @@
 
       <!-- Center Column: The ASCII Viewport -->
       <section id="viewport-container">
+        <!-- Mobile Top Mini-HUD (Only visible on mobile/small screens) -->
+        <div id="mobile-hud">
+          <div class="m-hud-row">
+            <div class="m-hud-bar-group">
+              <span class="m-bar-tag hp-tag">HP</span>
+              <div class="m-bar-track">
+                <div id="m-stat-hp-bar" class="m-fill hp-fill" style="width: 100%;"></div>
+              </div>
+              <span id="m-stat-hp-text" class="m-bar-num">35/35</span>
+            </div>
+            <div class="m-hud-bar-group">
+              <span class="m-bar-tag mp-tag">MP</span>
+              <div class="m-bar-track">
+                <div id="m-stat-mp-bar" class="m-fill mp-fill" style="width: 100%;"></div>
+              </div>
+              <span id="m-stat-mp-text" class="m-bar-num">15/15</span>
+            </div>
+          </div>
+          <div class="m-hud-meta">
+            <span>TẦNG <strong id="m-stat-floor">1</strong>/5</span>
+            <span>CẤP <strong id="m-stat-level">1</strong></span>
+            <span class="gold-text"><strong id="m-stat-gold">0</strong> 🪙</span>
+          </div>
+        </div>
+
         <div id="viewport-wrapper">
           <canvas id="dungeon-canvas" width="800" height="540"></canvas>
           <div id="floating-numbers-layer"></div>
@@ -156,19 +181,34 @@
 
         <!-- Touch / Onscreen Virtual Controls for Mobile / Click -->
         <div id="touch-controls">
-          <div class="dpad">
-            <button class="dpad-btn" id="btn-up" data-dir="up">▲</button>
-            <div class="dpad-mid">
-              <button class="dpad-btn" id="btn-left" data-dir="left">◀</button>
-              <button class="dpad-btn" id="btn-wait" data-dir="wait">●</button>
-              <button class="dpad-btn" id="btn-right" data-dir="right">▶</button>
-            </div>
-            <button class="dpad-btn" id="btn-down" data-dir="down">▼</button>
+          <!-- Quick Utility Tabs for Mobile -->
+          <div class="m-util-bar">
+            <button class="m-util-btn" id="btn-m-inventory">🎒 TÚI ĐỒ (<span id="m-inv-count">0</span>)</button>
+            <button class="m-util-btn" id="btn-m-spells">✨ PHÉP THUẬT</button>
+            <button class="m-util-btn" id="btn-m-log">📜 NHẬT KÝ</button>
           </div>
-          <div class="action-buttons">
-            <button class="act-btn" id="btn-stairs">Xuống [>]</button>
-            <button class="act-btn" id="btn-cast">Phép [F]</button>
-            <button class="act-btn" id="btn-potion">Hồi Máu [1]</button>
+
+          <div class="touch-main-row">
+            <!-- D-Pad -->
+            <div class="dpad">
+              <button class="dpad-btn" id="btn-up" data-dir="up">▲</button>
+              <div class="dpad-mid">
+                <button class="dpad-btn" id="btn-left" data-dir="left">◀</button>
+                <button class="dpad-btn btn-wait-accent" id="btn-wait" data-dir="wait" title="Chờ 1 lượt">●</button>
+                <button class="dpad-btn" id="btn-right" data-dir="right">▶</button>
+              </div>
+              <button class="dpad-btn" id="btn-down" data-dir="down">▼</button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <div class="action-grid">
+                <button class="act-btn btn-act-fire" id="btn-cast" title="Cầu lửa tầm xa">🔥 Lửa [F]</button>
+                <button class="act-btn btn-act-heal" id="btn-touch-heal" title="Hồi phục máu">❤️ Trị [H]</button>
+                <button class="act-btn btn-act-item" id="btn-potion" title="Uống bình máu số 1">🧪 Máu [1]</button>
+                <button class="act-btn btn-act-stairs" id="btn-stairs" title="Xuống tầng sâu hơn">⏬ Xuống [>]</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -283,6 +323,78 @@
       </div>
       <div class="modal-footer">
         <button id="btn-restart" class="btn-modal-action pulse-btn">CHƠI LẠI VÁN MỚI [SPACE]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Inventory Modal -->
+  <div id="modal-mobile-inventory" class="modal hidden">
+    <div class="modal-content mobile-sheet">
+      <div class="modal-header">
+        <h2>🎒 TÚI ĐỒ NHÂN VẬT</h2>
+        <button id="btn-close-m-inv" class="btn-close">✖</button>
+      </div>
+      <div class="modal-body">
+        <div id="m-inventory-list" class="inventory-items mobile-inv-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-m-inv-close" class="btn-modal-action">ĐÓNG</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Spells Modal -->
+  <div id="modal-mobile-spells" class="modal hidden">
+    <div class="modal-content mobile-sheet">
+      <div class="modal-header">
+        <h2>✨ BẢNG PHÉP THUẬT</h2>
+        <button id="btn-close-m-spells" class="btn-close">✖</button>
+      </div>
+      <div class="modal-body spells-grid-modal">
+        <button class="spell-card" id="m-spell-fireball">
+          <div class="spell-card-icon">🔥</div>
+          <div class="spell-card-info">
+            <strong>Cầu Lửa (Fireball)</strong>
+            <span>Tấn công tầm xa (Tốn 5 MP)</span>
+          </div>
+        </button>
+        <button class="spell-card" id="m-spell-heal">
+          <div class="spell-card-icon">❤️</div>
+          <div class="spell-card-info">
+            <strong>Trị Thương (Heal)</strong>
+            <span>Hồi 18 Máu (Tốn 6 MP)</span>
+          </div>
+        </button>
+        <button class="spell-card" id="m-spell-blink">
+          <div class="spell-card-icon">🌀</div>
+          <div class="spell-card-info">
+            <strong>Hư Không Bộ (Blink)</strong>
+            <span>Dịch chuyển thoát hiểm (Tốn 8 MP)</span>
+          </div>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-m-spells-close" class="btn-modal-action">ĐÓNG</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Logs Modal -->
+  <div id="modal-mobile-log" class="modal hidden">
+    <div class="modal-content mobile-sheet">
+      <div class="modal-header">
+        <h2>📜 NHẬT KÝ CHIẾN TÍCH</h2>
+        <button id="btn-close-m-log" class="btn-close">✖</button>
+      </div>
+      <div class="modal-body">
+        <div id="m-combat-log" class="mobile-log-view">
+          <!-- Logs appear here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-m-log-close" class="btn-modal-action">ĐÓNG</button>
       </div>
     </div>
   </div>

@@ -612,10 +612,19 @@ class GameEngine {
       }
     });
 
-    // Touch & Virtual D-Pad buttons
+    // Touch & Virtual D-Pad buttons with instant pointer response (no 300ms click delay)
     const bindBtn = (id, fn) => {
       const el = document.getElementById(id);
-      if (el) el.addEventListener('click', fn);
+      if (!el) return;
+      el.addEventListener('pointerdown', (e) => {
+        // Only respond to primary touch/click
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+        fn();
+      });
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+      });
     };
 
     bindBtn('btn-up', () => this.handleMove(0, -1));
@@ -625,7 +634,29 @@ class GameEngine {
     bindBtn('btn-wait', () => { this.ui.logMessage('Bạn đứng cảnh giác quan sát.', 'system'); this.endPlayerTurn(); });
     bindBtn('btn-stairs', () => this.descendStairs());
     bindBtn('btn-cast', () => this.castFireball());
+    bindBtn('btn-touch-heal', () => this.castHealSpell());
     bindBtn('btn-potion', () => this.useInventoryItem(0));
+
+    // Mobile Navigation & Utility Modals
+    bindBtn('btn-m-inventory', () => this.toggleModal('modal-mobile-inventory'));
+    bindBtn('btn-close-m-inv', () => this.closeModals());
+    bindBtn('btn-m-inv-close', () => this.closeModals());
+
+    bindBtn('btn-m-spells', () => this.toggleModal('modal-mobile-spells'));
+    bindBtn('btn-close-m-spells', () => this.closeModals());
+    bindBtn('btn-m-spells-close', () => this.closeModals());
+
+    bindBtn('btn-m-log', () => this.toggleModal('modal-mobile-log'));
+    bindBtn('btn-close-m-log', () => this.closeModals());
+    bindBtn('btn-m-log-close', () => this.closeModals());
+
+    // Mobile Spell Card Triggers
+    bindBtn('m-spell-fireball', () => { this.castFireball(); this.closeModals(); });
+    bindBtn('m-spell-heal', () => { this.castHealSpell(); this.closeModals(); });
+    bindBtn('m-spell-blink', () => { this.castBlinkSpell(); this.closeModals(); });
+
+    // Canvas Touch Swipe Gestures
+    this.setupSwipeGestures();
 
     // Spell panel buttons
     bindBtn('spell-fireball', () => this.castFireball());
@@ -650,14 +681,66 @@ class GameEngine {
     bindBtn('btn-restart', () => this.startNewGame());
   }
 
+  setupSwipeGestures() {
+    const canvas = document.getElementById('dungeon-canvas');
+    if (!canvas) return;
+
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+
+    canvas.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        startTime = Date.now();
+      }
+    }, { passive: true });
+
+    canvas.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length === 1) {
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        const dt = Date.now() - startTime;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        // Valid swipe: distance >= 24px and duration <= 500ms
+        if (dist >= 24 && dt <= 500) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            this.handleMove(dx > 0 ? 1 : -1, 0);
+          } else {
+            this.handleMove(0, dy > 0 ? 1 : -1);
+          }
+        }
+      }
+    }, { passive: true });
+  }
+
+  toggleModal(modalId) {
+    const targetModal = document.getElementById(modalId);
+    if (!targetModal) return;
+    const isCurrentlyOpen = !targetModal.classList.contains('hidden');
+    this.closeModals();
+    if (!isCurrentlyOpen) {
+      targetModal.classList.remove('hidden');
+    }
+  }
+
   toggleHelpModal() {
-    const modal = document.getElementById('modal-help');
-    if (modal) modal.classList.toggle('hidden');
+    this.toggleModal('modal-help');
   }
 
   closeModals() {
-    const helpModal = document.getElementById('modal-help');
-    if (helpModal) helpModal.classList.add('hidden');
+    const modalIds = [
+      'modal-help',
+      'modal-mobile-inventory',
+      'modal-mobile-spells',
+      'modal-mobile-log'
+    ];
+    modalIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('hidden');
+    });
   }
 }
 
